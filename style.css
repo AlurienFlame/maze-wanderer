@@ -1,0 +1,30 @@
+:root {
+  --background-color: #3C3836;
+  --maze-color: #504945;
+  --wall-color: #665C54;
+}
+
+body {
+  height: 100vh;
+  margin: 0px;
+  background-color: var(--background-color);
+  font-family: 'Rubik', sans-serif;
+  display: grid;
+  place-items: center;
+}
+
+#maze {
+  height: 90vh;
+  aspect-ratio: 1;
+  background-color: var(--maze-color);
+  display: grid;
+  --rows: 0;
+  --cols: 0;
+  grid-template-rows: repeat(var(--rows), 1fr);
+  grid-template-columns: repeat(var(--cols), 1fr);
+}
+
+.tile {
+  box-sizing: border-box;
+  aspect-ratio: 1;
+}
