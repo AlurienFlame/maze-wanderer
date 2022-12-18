@@ -10,7 +10,6 @@ export class Cell {
     this.x = x;
     this.y = y;
     this.maze = maze;
-    maze.setCell(x, y, this);
     this.up = false;
     this.down = false;
     this.left = false;
