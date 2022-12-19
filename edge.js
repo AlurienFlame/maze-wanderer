@@ -3,6 +3,11 @@ export class Edge {
     this.cell1 = cell1;
     this.cell2 = cell2;
     this.weight = Math.random();
+    if (cell1.edges.includes(this) || cell2.edges.includes(this)) {
+      throw new Error("Tried to create edge between cells that already have an edge between them");
+    }
+    cell1.edges.push(this);
+    cell2.edges.push(this);
   }
 
   spawnGate() {
