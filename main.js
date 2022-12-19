@@ -99,7 +99,7 @@ document.addEventListener('keyup', (e) => {
   }
 });
 
-let cameraX = 0;
+let cameraX = 0; // Cell coords
 let cameraY = 0;
 const blockSize = 8;
 
@@ -117,12 +117,21 @@ function style(name) {
   return rootStyles.getPropertyValue(name);
 }
 
+function cellCoordsFromTileIndex(index) {
+  if (isNaN(index)) {
+    console.error('Invalid index to get cell coords from', index);
+    return { x: 0, y: 0 };
+  }
+  let x = index % cols;
+  let y = Math.floor(index / cols);
+  return { x, y };
+}
+
 // Render the maze state to the DOM
 function render() {
   for (let i = 0; i < mazeElem.children.length; i++) {
     let tile = mazeElem.children[i];
-    let x = i % cols;
-    let y = Math.floor(i / cols);
+    let { x, y } = cellCoordsFromTileIndex(i);
     let cell = maze.getCell(x + cameraX, y + cameraY);
 
     // Reset tile style
@@ -154,11 +163,19 @@ function render() {
     if (guide.path.includes(cell)) {
       tile.style.backgroundColor = style('--path-color');
     }
-    if (guide.target === cell) {
+    if (guide.targetCell === cell) {
       tile.style.backgroundColor = style('--target-color');
     }
   }
 }
+
+// Control Guide
+mazeElem.addEventListener('click', (e) => {
+  if (e.target === mazeElem) return; // Click and drag gets wrong target
+  let {x, y} = cellCoordsFromTileIndex(Array.from(mazeElem.children).indexOf(e.target));
+  guide.updateTargetCell(x, y);
+  render();
+});
 
 main();
 function main() {

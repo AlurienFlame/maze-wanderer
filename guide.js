@@ -13,10 +13,11 @@ export class Guide {
   updateTargetCell(x, y) {
     this.targetCell = this.maze.getCell(x, y);
     if (!this.targetCell) {
-      console.log(`Target cell ${this.targetCell.toString()} is not in maze`);
+      console.warn(`Target cell ${x},${y} is not in maze`);
       return false;
     }
     this.path = this.aStar(this.targetCell);
+    // TODO: Check reachability
   }
 
   stepAlongPath() {
