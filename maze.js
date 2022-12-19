@@ -11,10 +11,10 @@ export class Maze {
   stepPrims(nodesInTree, nodesNotInTree) {
     // Find frontier
     let edgesOnFrontier = [];
-    for (let node of nodesInTree) {
-      for (let neighbor of node.getNeighbors()) {
-        if (!nodesInTree.includes(neighbor)) {
-          edgesOnFrontier.push(new Edge(node, neighbor));
+    for (let node of nodesNotInTree) {
+      for (let edge of node.edges) {
+        if (edge.connects(nodesInTree, nodesNotInTree)) {
+          edgesOnFrontier.push(edge);
         }
       }
     }
@@ -95,6 +95,7 @@ export class Maze {
     while (nodesNotInTree.length) {
       edgesInTree.push(this.stepPrims(nodesInTree, nodesNotInTree));
     }
+    let endTime = performance.now();
 
     return edgesInTree;
   }
