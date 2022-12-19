@@ -54,7 +54,6 @@ export class Maze {
       if (!randomEdge.inOneOf(nodesInTree, nodesNotInTree)) {
         console.warn("Edge to add to tree does not connect to tree");
         if (nodesInTree.includes(randomEdge.cell1) && nodesInTree.includes(randomEdge.cell2)) {
-          // FIXME: this case should never happen, but it does
           console.warn("Both cells in edge are already in tree");
         } else if (nodesNotInTree.includes(randomEdge.cell1) && nodesNotInTree.includes(randomEdge.cell2)) {
           console.warn("Neither cell in edge is in tree");
