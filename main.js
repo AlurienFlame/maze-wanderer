@@ -156,15 +156,18 @@ function render() {
     if (cell.right) tile.style.borderRight = `1px dashed ${style('--wall-color')}bb`;
 
     // Render guide and its path
-    if (!guide) continue;    
-    if (guide.pos === cell) {
-      tile.style.backgroundColor = style('--guide-color');
+    if (!guide) continue;
+    if (guide.visited.includes(cell)) {
+      tile.style.backgroundColor = style('--visited-color');
     }
     if (guide.path.includes(cell)) {
       tile.style.backgroundColor = style('--path-color');
     }
     if (guide.targetCell === cell) {
       tile.style.backgroundColor = style('--target-color');
+    }
+    if (guide.pos === cell) {
+      tile.style.backgroundColor = style('--guide-color');
     }
   }
 }

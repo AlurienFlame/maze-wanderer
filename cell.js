@@ -40,6 +40,10 @@ export class Cell {
     return ["up", "down", "left", "right"].map(direction => this.getNeighbor(direction)).filter(neighbor => neighbor);
   }
 
+  getNeighborsByEdges() {
+    return this.edges.map(edge => edge.cell1 === this ? edge.cell2 : edge.cell1);
+  }
+
   createNeighbor(direction) {
     return new Cell(this.x + coordFromDirection[direction].x, this.y + coordFromDirection[direction].y, this.maze);
   }

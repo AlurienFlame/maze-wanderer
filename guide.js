@@ -5,6 +5,7 @@ export class Guide {
     this.maze = maze;
     this.pos = null;
     this.path = [];
+    this.visited = [];
     this.targetCell = null;
   }
 
@@ -16,7 +17,7 @@ export class Guide {
       console.warn(`Target cell ${x},${y} is not in maze`);
       return false;
     }
-    this.path = this.aStar(this.targetCell);
+    this.aStar(this.targetCell);
     // TODO: Check reachability
   }
 
@@ -29,8 +30,36 @@ export class Guide {
   // Given a target cell, return a path to it as a
   // list of cells, sorted from start to end
   aStar(targetCell) {
-    console.warn("Guide.aStar not implemented");
-    return [];
+    let frontier = [this.pos];
+    this.visited = [];
+
+    while (!this.stepAStar(frontier));
+
+    // TODO: Reconstruct path from visited
+    this.path = [];
+    for (let pathCell = targetCell; pathCell !== this.pos; pathCell = pathCell.pathOrigin) {
+      this.path.push(pathCell);
+    }
+  }
+
+  // Modifies frontier and visited, returns true if it reaches targetCell
+  stepAStar(frontier) {
+    if (!frontier.length) {
+      console.warn("No path to target");
+      return true;
+    }
+
+    let cell = frontier.shift();
+    if (cell === this.targetCell) return true;
+
+    this.visited.push(cell);
+    let neighbors = cell.getNeighborsByEdges();
+    let unexploredNeighbors = neighbors.filter(neighbor => !this.visited.includes(neighbor));
+    frontier.push(...unexploredNeighbors);
+
+    for (let neighbor of unexploredNeighbors) {
+      neighbor.pathOrigin = cell;
+    }
   }
 
   toString() {
