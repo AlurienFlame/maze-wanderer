@@ -112,25 +112,25 @@ function render() {
     let cell = maze.getCell(x, y);
 
     // Reset tile style
-    tile.style.borderTop = '3px solid #665C54';
-    tile.style.borderBottom = '3px solid #665C54';
-    tile.style.borderLeft = '3px solid #665C54';
-    tile.style.borderRight = '3px solid #665C54';
+    tile.style.borderTop = `1px solid #665C54`;
+    tile.style.borderBottom = `1px solid #665C54`;
+    tile.style.borderLeft = `1px solid #665C54`;
+    tile.style.borderRight = `1px solid #665C54`;
     tile.style.backgroundColor = 'transparent';
     if (!cell) {
       tile.style.backgroundColor = '#3f3a37';
     }
 
+    if (!cell) continue;
     // Set tile style based on cell state
     // if (cell.up) tile.style.borderTop = 'none';
     // if (cell.down) tile.style.borderBottom = 'none';
     // if (cell.left) tile.style.borderLeft = 'none';
     // if (cell.right) tile.style.borderRight = 'none';
-    if (!cell) continue;
-    if (cell.up) tile.style.borderTop = '3px dashed #665C5455';
-    if (cell.down) tile.style.borderBottom = '3px dashed #665C5455';
-    if (cell.left) tile.style.borderLeft = '3px dashed #665C5455';
-    if (cell.right) tile.style.borderRight = '3px dashed #665C5455';
+    if (cell.up) tile.style.borderTop = `1px dashed #665C5455`;
+    if (cell.down) tile.style.borderBottom = `1px dashed #665C5455`;
+    if (cell.left) tile.style.borderLeft = `1px dashed #665C5455`;
+    if (cell.right) tile.style.borderRight = `1px dashed #665C5455`;
 
   }
 
