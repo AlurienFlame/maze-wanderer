@@ -15,6 +15,7 @@ export class Cell {
     this.left = false;
     this.right = false;
     this.edges = [];
+    this.inMST = false;
   }
 
   openGate(direction) {

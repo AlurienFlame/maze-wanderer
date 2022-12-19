@@ -1,7 +1,8 @@
 import { Maze } from './maze.js';
 const maze = new Maze();
-maze.generateBlock(0, 0, 20, 20);
-maze.generateBlock(20, 0, 20, 20);
+const blockSize = 20;
+maze.generateBlock(0, 0, blockSize, blockSize);
+maze.generateBlock(blockSize, 0, blockSize, blockSize);
 
 // Display & Events
 const mazeElem = document.getElementById('maze');
@@ -10,7 +11,7 @@ mazeElem.addEventListener('wheel', (e) => {
   zoom(e.deltaY);
 });
 
-let tileSize = 200; // px
+let tileSize = 30; // px
 let rows = 0; // Actual number of elements, not data structure
 let cols = 0;
 zoom(0); // Generate initial elements

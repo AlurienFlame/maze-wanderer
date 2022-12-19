@@ -8,7 +8,7 @@ export class Maze {
 
   // Moves a node from inTree to notInTree based on Prim's algorithm,
   // and returns the edge that connects the node to the tree.
-  stepPrims(nodesInTree, nodesNotInTree, probableFrontierEdges) {
+  stepPrims(nodesInTree, nodesNotInTree) {
     // Find frontier
     let edgesOnFrontier = [];
     for (let node of nodesNotInTree) {
@@ -18,7 +18,6 @@ export class Maze {
         }
       }
     }
-    // console.log(`Edges on frontier: ${edgesOnFrontier.length} =?= Probable frontier edges: ${probableFrontierEdges.length}`);
 
     // Pick an edge based on weight
     let smallestEdge = edgesOnFrontier[0];
@@ -55,43 +54,20 @@ export class Maze {
   // Generate a minimum spanning tree of cells
   primsAlgorithm(blockCells) {
     // Generate an edge between each cell in the block and its neighbor
-    let edges = [];
     for (let cell of Object.values(blockCells)) {
-      if (cell.getNeighbor("right")) edges.push(new Edge(cell, cell.getNeighbor("right")));
-      if (cell.getNeighbor("down")) edges.push(new Edge(cell, cell.getNeighbor("down")));
-    }
-
-    // Validate no duplicate edges
-    for (let i = 0; i < edges.length; i++) {
-      for (let j = i + 1; j < edges.length; j++) {
-        if (edges[i].isEquivalent(edges[j])) {
-          console.warn("Duplicate edge found");
-        }
-      }
+      if (cell.getNeighbor("right")) new Edge(cell, cell.getNeighbor("right"));
+      if (cell.getNeighbor("down")) new Edge(cell, cell.getNeighbor("down"));
     }
 
     // Generate edges to already generated sections of the maze
-    let probableFrontierEdges = [];
     for (let cell of Object.values(blockCells)) {
       for (let neighbor of cell.getNeighbors()) {
         if (neighbor.inMST) {
-          let edge = new Edge(cell, neighbor);
-          edges.push(edge);
-          probableFrontierEdges.push(edge);
+          new Edge(cell, neighbor);
         }
       }
     }
 
-    // Validate no duplicate edges
-    for (let i = 0; i < edges.length; i++) {
-      for (let j = i + 1; j < edges.length; j++) {
-        if (edges[i].isEquivalent(edges[j])) {
-          console.warn("Duplicate edge found");
-        }
-      }
-    }
-
-    // TODO: nodesInTree should be more inclusive
     // Apply Prim's algorithm to generate a minimum spanning tree
     let nodesInTree = Object.values(this.cells).filter(
       cell => cell.inMST
@@ -102,11 +78,9 @@ export class Maze {
     let nodesNotInTree = blockCells.slice(1);
 
     let edgesInTree = [];
-    console.time("Prims algorithm");
     while (nodesNotInTree.length) {
-      edgesInTree.push(this.stepPrims(nodesInTree, nodesNotInTree, probableFrontierEdges));
+      edgesInTree.push(this.stepPrims(nodesInTree, nodesNotInTree));
     }
-    console.timeEnd("Prims algorithm");
 
     return edgesInTree;
   }
