@@ -18,55 +18,50 @@ export class Maze {
     }
 
     // Generate an edge between each cell in the block and its neighbor
-    let edges = new Set();
+    let edges = [];
     for (let cell of Object.values(blockCells)) {
-      for (let neighbor of cell.getNeighbors()) {
-        edges.add(new Edge(cell, neighbor));
-      }
+      if (cell.getNeighbor("right")) edges.push(new Edge(cell, cell.getNeighbor("right")));
+      if (cell.getNeighbor("down")) edges.push(new Edge(cell, cell.getNeighbor("down")));
     }
 
     // Apply Prim's algorithm to generate a minimum spanning tree
-    let nodesInTree = [blockCells[0]]; // S1
-    let nodesNotInTree = blockCells.slice(1); // S2
-    let edgesInTree = []; // T
-    let edgesOnFrontier = []; // E
+    let nodesInTree = [blockCells[0]];
+    // console.log([blockCells[0]]); // Array containing one cell
+    // console.log(nodesInTree); // Array of all cells??
+    let nodesNotInTree = blockCells.slice(1);
+    let edgesInTree = [];
+    let edgesOnFrontier = [];
 
-    console.log(edges);
-
-    // Add all edges in {u,v|v∈S2} into E
+    // Move any node connecting outside of the tree onto the frontier
     for (let edge of edges) {
-      if (nodesInTree.includes(edge.cells[0]) && nodesNotInTree.includes(edge.cells[1])) {
-        edgesOnFrontier.add(edge);
+      if (edge.inOneOf(nodesInTree, nodesNotInTree)) {
+        edgesOnFrontier.push(edge);
       }
-      if (nodesInTree.includes(edge.cells[1]) && nodesNotInTree.includes(edge.cells[0])) {
-        edgesOnFrontier.add(edge);
-      }
-    }
-    
-    if (edgesOnFrontier.length !== 2) {
-      console.log("Failure to properly implement Prim's algorithm");
     }
 
-    while (nodesNotInTree.length > 0) {
-      // Select an edge {u,v|u∈S1,v∈S2,(u,v)∈E} with minimum weight
+    if (edgesOnFrontier.length !== 2) {
+      console.warn("First addition of nodes to frontier did not add exactly two nodes");
+    }
+
+    while (edgesOnFrontier.length) {
+      // Select an edge on the frontier with minimum weight
       edgesOnFrontier.sort((e1, e2) => e1.weight - e2.weight);
       let edge = edgesOnFrontier.shift();
 
-      // Add {u,v} to T
+      if (!edge) {
+        console.warn("Could not find edge to add to tree");
+        break;
+      }
+
+      // Add the edge to the tree
       edgesInTree.push(edge);
 
-      // Add v to S1
-      nodesInTree.push(edge.cells[1]);
+      // Move the newly added node into the tree
+      nodesNotInTree.splice(nodesNotInTree.indexOf(edge.cell2), 1);
+      nodesInTree.push(edge.cell2);
 
       // Add all edges in {v,w|w∈S2} into E
-      for (let edge of edges) {
-        if (nodesInTree.includes(edge.cells[0]) && nodesNotInTree.includes(edge.cells[1])) {
-          edgesOnFrontier.add(edge);
-        }
-        if (nodesInTree.includes(edge.cells[1]) && nodesNotInTree.includes(edge.cells[0])) {
-          edgesOnFrontier.add(edge);
-        }
-      }
+      edgesOnFrontier = edgesOnFrontier.concat(edges.filter(edge => edge.inOneOf(nodesInTree, nodesNotInTree)));
     }
 
     for (let edge of edgesInTree) {
