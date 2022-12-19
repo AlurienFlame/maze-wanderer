@@ -147,9 +147,8 @@ function render() {
     if (cell.right) tile.style.borderRight = `1px dashed ${style('--wall-color')}bb`;
 
     // Render guide and its path
-    if (!guide) continue;
-    if (guide.cell === cell) {
-      console.log('guide cell', cell)
+    if (!guide) continue;    
+    if (guide.pos === cell) {
       tile.style.backgroundColor = style('--guide-color');
     }
     if (guide.path.includes(cell)) {
@@ -165,6 +164,7 @@ main();
 function main() {
   maze.generateBlock(0, 0, blockSize, blockSize);
   // maze.generateBlock(blockSize, 0, blockSize, blockSize);
+  guide.pos = maze.getCell(0, 0);
 
 
   zoom(0); // Generate initial tile elements

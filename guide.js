@@ -3,7 +3,7 @@ import { Cell } from './cell.js';
 export class Guide {
   constructor(maze) {
     this.maze = maze;
-    this.pos = maze.getCell(0, 0);
+    this.pos = null;
     this.path = [];
     this.targetCell = null;
   }
