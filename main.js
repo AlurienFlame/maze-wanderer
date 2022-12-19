@@ -178,7 +178,7 @@ mazeElem.addEventListener('click', (e) => {
   let {x, y} = cellCoordsFromTileIndex(Array.from(mazeElem.children).indexOf(e.target));
   if (!maze.getCell(x, y)) {
     // Generate a new block if clicked outside of existing maze
-    maze.generateBlock(x, y, blockSize, blockSize);
+    maze.generateBlock(x - x % blockSize, y - y % blockSize, blockSize, blockSize);
   }
   guide.updateTargetCell(x, y);
   render();
