@@ -1,6 +1,8 @@
 import { Maze } from './maze.js';
+import { Guide } from './guide.js';
 const maze = new Maze();
 const mazeElem = document.getElementById('maze');
+const guide = new Guide(maze);
 
 // Zoom
 mazeElem.addEventListener('wheel', (e) => {
@@ -109,6 +111,12 @@ function pan(deltaX, deltaY) {
   render();
 }
 
+// Helper for rendering
+const rootStyles = getComputedStyle(document.documentElement);
+function style(name) {
+  return rootStyles.getPropertyValue(name);
+}
+
 // Render the maze state to the DOM
 function render() {
   for (let i = 0; i < mazeElem.children.length; i++) {
@@ -118,13 +126,13 @@ function render() {
     let cell = maze.getCell(x + cameraX, y + cameraY);
 
     // Reset tile style
-    tile.style.borderTop = `1px solid #665C54`;
-    tile.style.borderBottom = `1px solid #665C54`;
-    tile.style.borderLeft = `1px solid #665C54`;
-    tile.style.borderRight = `1px solid #665C54`;
+    tile.style.borderTop = `1px solid ${style('--wall-color')}`;
+    tile.style.borderBottom = `1px solid ${style('--wall-color')}`;
+    tile.style.borderLeft = `1px solid ${style('--wall-color')}`;
+    tile.style.borderRight = `1px solid ${style('--wall-color')}`;
     tile.style.backgroundColor = 'transparent';
     if (!cell) {
-      tile.style.backgroundColor = '#3f3a37';
+      tile.style.backgroundColor = style('--background-color');
     }
 
     if (!cell) continue;
@@ -133,11 +141,23 @@ function render() {
     // if (cell.down) tile.style.borderBottom = 'none';
     // if (cell.left) tile.style.borderLeft = 'none';
     // if (cell.right) tile.style.borderRight = 'none';
-    if (cell.up) tile.style.borderTop = `1px dashed #665C5455`;
-    if (cell.down) tile.style.borderBottom = `1px dashed #665C5455`;
-    if (cell.left) tile.style.borderLeft = `1px dashed #665C5455`;
-    if (cell.right) tile.style.borderRight = `1px dashed #665C5455`;
+    if (cell.up) tile.style.borderTop = `1px dashed ${style('--wall-color')}bb`;
+    if (cell.down) tile.style.borderBottom = `1px dashed ${style('--wall-color')}bb`;
+    if (cell.left) tile.style.borderLeft = `1px dashed ${style('--wall-color')}bb`;
+    if (cell.right) tile.style.borderRight = `1px dashed ${style('--wall-color')}bb`;
 
+    // Render guide and its path
+    if (!guide) continue;
+    if (guide.cell === cell) {
+      console.log('guide cell', cell)
+      tile.style.backgroundColor = style('--guide-color');
+    }
+    if (guide.path.includes(cell)) {
+      tile.style.backgroundColor = style('--path-color');
+    }
+    if (guide.target === cell) {
+      tile.style.backgroundColor = style('--target-color');
+    }
   }
 }
 
@@ -145,6 +165,7 @@ main();
 function main() {
   maze.generateBlock(0, 0, blockSize, blockSize);
   // maze.generateBlock(blockSize, 0, blockSize, blockSize);
+
 
   zoom(0); // Generate initial tile elements
 
