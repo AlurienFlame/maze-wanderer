@@ -41,4 +41,8 @@ export class Edge {
     return arr1.includes(this.cell1) && arr2.includes(this.cell2) ||
       arr1.includes(this.cell2) && arr2.includes(this.cell1);
   }
+
+  toString() {
+    return `Edge(${this.cell1.toString()} <-> ${this.cell2.toString()})`;
+  }
 }

@@ -27,11 +27,11 @@ export class Maze {
       }
     }
 
+    // Make sure the algorithm is working correctly
     if (!smallestEdge) {
       console.warn("Could not find edge to add to tree");
       return;
     }
-
     if (!smallestEdge.connects(nodesInTree, nodesNotInTree)) {
       console.warn("Edge to add to tree does not connect to tree");
       if (nodesInTree.includes(smallestEdge.cell1) && nodesInTree.includes(smallestEdge.cell2)) {
@@ -79,7 +79,12 @@ export class Maze {
 
     let edgesInTree = [];
     while (nodesNotInTree.length) {
-      edgesInTree.push(this.stepPrims(nodesInTree, nodesNotInTree));
+      let nextEdge = this.stepPrims(nodesInTree, nodesNotInTree);
+      if (!nextEdge) {
+        console.warn("Prim's tripped - failed to find edge to add to tree");
+        break;
+      }
+      edgesInTree.push();
     }
 
     return edgesInTree;
@@ -101,6 +106,7 @@ export class Maze {
     }
 
     console.log(`Generated block at ${x},${y} with ${Object.values(blockCells).length} cells`);
+    this.validate();
   }
 
   getCell(x, y) {
@@ -109,5 +115,22 @@ export class Maze {
 
   setCell(x, y, cell) {
     this.cells[`${x},${y}`] = cell;
+  }
+
+  validate() {
+    // No equivalent edges
+    // Since every edge's cells have pointers to it, we can check the cells for duplicates
+    // instead of n^2 checking every edge against every other edge
+    for (let cell of Object.values(this.cells)) {
+      if (!cell.validate()) {
+        console.warn(`Cell ${cell.x},${cell.y} failed to validate itself.`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  toString() {
+    return `Maze(${Object.values(this.cells).length})`;
   }
 }

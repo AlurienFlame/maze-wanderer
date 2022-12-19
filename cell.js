@@ -43,4 +43,25 @@ export class Cell {
   createNeighbor(direction) {
     return new Cell(this.x + coordFromDirection[direction].x, this.y + coordFromDirection[direction].y, this.maze);
   }
+
+  validate() {
+    // No duplicate edges
+    for (let i = 0; i < this.edges.length; i++) {
+      for (let j = i + 1; j < this.edges.length; j++) {
+        if (this.edges[i].weight === this.edges[j].weight) {
+          console.warn(`Equal weights on edges ${this.edges[i]} and ${this.edges[j]}`);
+          return false;
+        }
+        if (this.edges[i].isEquivalent(this.edges[j])) {
+          console.warn(`Equivalent edges ${this.edges[i]} and ${this.edges[j]}`);
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  toString() {
+    return `Cell(${this.x},${this.y})`;
+  }
 }

@@ -1,8 +1,8 @@
 import { Maze } from './maze.js';
 const maze = new Maze();
-const blockSize = 20;
+const blockSize = 2;
 maze.generateBlock(0, 0, blockSize, blockSize);
-maze.generateBlock(blockSize, 0, blockSize, blockSize);
+// maze.generateBlock(blockSize, 0, blockSize, blockSize);
 
 // Display & Events
 const mazeElem = document.getElementById('maze');
