@@ -37,7 +37,7 @@ export class Edge {
       (this.cell1 === edge.cell2 && this.cell2 === edge.cell1);
   }
 
-  inOneOf(arr1, arr2) {
+  connects(arr1, arr2) {
     return arr1.includes(this.cell1) && arr2.includes(this.cell2) ||
       arr1.includes(this.cell2) && arr2.includes(this.cell1);
   }
