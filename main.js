@@ -6,6 +6,9 @@ const mazeElem = document.getElementById('maze');
 mazeElem.addEventListener('wheel', (e) => {
   zoom(e.deltaY);
 });
+window.addEventListener('resize', () => {
+  zoom(0);
+});
 
 let tileSize = 30; // px
 let rows = 0; // Actual number of elements, not data structure
