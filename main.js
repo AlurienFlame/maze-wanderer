@@ -1,6 +1,7 @@
 import { Maze } from './maze.js';
 const maze = new Maze();
 maze.generateBlock(0, 0, 20, 20);
+maze.generateBlock(20, 0, 20, 20);
 
 // Display & Events
 const mazeElem = document.getElementById('maze');

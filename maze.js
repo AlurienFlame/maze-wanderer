@@ -8,7 +8,7 @@ export class Maze {
 
   // Moves a node from inTree to notInTree based on Prim's algorithm,
   // and returns the edge that connects the node to the tree.
-  stepPrims(nodesInTree, nodesNotInTree) {
+  stepPrims(nodesInTree, nodesNotInTree, probableFrontierEdges) {
     // Find frontier
     let edgesOnFrontier = [];
     for (let node of nodesNotInTree) {
@@ -18,6 +18,7 @@ export class Maze {
         }
       }
     }
+    // console.log(`Edges on frontier: ${edgesOnFrontier.length} =?= Probable frontier edges: ${probableFrontierEdges.length}`);
 
     // Pick an edge based on weight
     let smallestEdge = edgesOnFrontier[0];
@@ -46,6 +47,7 @@ export class Maze {
     let nodeToAdd = nodesNotInTree.includes(smallestEdge.cell1) ? smallestEdge.cell1 : smallestEdge.cell2;
     nodesNotInTree.splice(nodesNotInTree.indexOf(nodeToAdd), 1);
     nodesInTree.push(nodeToAdd);
+    nodeToAdd.inMST = true;
 
     return smallestEdge;
   }
@@ -69,10 +71,13 @@ export class Maze {
     }
 
     // Generate edges to already generated sections of the maze
+    let probableFrontierEdges = [];
     for (let cell of Object.values(blockCells)) {
       for (let neighbor of cell.getNeighbors()) {
         if (neighbor.inMST) {
-          edges.push(new Edge(cell, neighbor));
+          let edge = new Edge(cell, neighbor);
+          edges.push(edge);
+          probableFrontierEdges.push(edge);
         }
       }
     }
@@ -86,16 +91,22 @@ export class Maze {
       }
     }
 
+    // TODO: nodesInTree should be more inclusive
     // Apply Prim's algorithm to generate a minimum spanning tree
-    let arbitraryStartingNode = blockCells[0];
-    let nodesInTree = [arbitraryStartingNode];
+    let nodesInTree = Object.values(this.cells).filter(
+      cell => cell.inMST
+    );
+    if (!nodesInTree.length) {
+      nodesInTree = [blockCells[0]];
+    }
     let nodesNotInTree = blockCells.slice(1);
 
     let edgesInTree = [];
+    console.time("Prims algorithm");
     while (nodesNotInTree.length) {
-      edgesInTree.push(this.stepPrims(nodesInTree, nodesNotInTree));
+      edgesInTree.push(this.stepPrims(nodesInTree, nodesNotInTree, probableFrontierEdges));
     }
-    let endTime = performance.now();
+    console.timeEnd("Prims algorithm");
 
     return edgesInTree;
   }
@@ -116,14 +127,6 @@ export class Maze {
     }
 
     console.log(`Generated block at ${x},${y} with ${Object.values(blockCells).length} cells`);
-
-    // Add gates at edges of block
-    for (let cell of blockCells) {
-      if (cell.y === y + (height / 2) && cell.x === x) cell.openGate("left");
-      if (cell.y === y + (height / 2) && cell.x === x + width - 1) cell.openGate("right");
-      if (cell.x === x + (width / 2) && cell.y === y) cell.openGate("up");
-      if (cell.x === x + (width / 2) && cell.y === y + height - 1) cell.openGate("down");
-    }
   }
 
   getCell(x, y) {
