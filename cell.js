@@ -30,6 +30,7 @@ export class Cell {
   }
 
   getNeighbor(direction) {
+    if (!direction) console.log("Undefined direction given to getNeighbor");
     return this.maze.getCell(this.x + coordFromDirection[direction].x, this.y + coordFromDirection[direction].y);
   }
 

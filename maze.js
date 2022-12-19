@@ -8,25 +8,74 @@ export class Maze {
 
   generateBlock(x, y, width, height) {
     // Generate cells
+    let blockCells = [];
     for (let i = x; i < x + width; i++) {
       for (let j = y; j < y + height; j++) {
         let cell = new Cell(i, j, this);
-        this.setCell(x, y, cell);
+        this.setCell(i, j, cell);
+        blockCells.push(cell);
       }
     }
 
-    // Generate an edge between each cell and its neighbor
-    let edges = [];
-    for (let cell of Object.values(this.cells)) {
+    // Generate an edge between each cell in the block and its neighbor
+    let edges = new Set();
+    for (let cell of Object.values(blockCells)) {
       for (let neighbor of cell.getNeighbors()) {
-        edges.push(new Edge(cell, neighbor));
+        edges.add(new Edge(cell, neighbor));
       }
     }
 
-    // Eliminate edges according to a minimum spanning tree algorithm
+    // Apply Prim's algorithm to generate a minimum spanning tree
+    let nodesInTree = [blockCells[0]]; // S1
+    let nodesNotInTree = blockCells.slice(1); // S2
+    let edgesInTree = []; // T
+    let edgesOnFrontier = []; // E
 
-    // Generate gates
+    console.log(edges);
 
+    // Add all edges in {u,v|v∈S2} into E
+    for (let edge of edges) {
+      if (nodesInTree.includes(edge.cells[0]) && nodesNotInTree.includes(edge.cells[1])) {
+        edgesOnFrontier.add(edge);
+      }
+      if (nodesInTree.includes(edge.cells[1]) && nodesNotInTree.includes(edge.cells[0])) {
+        edgesOnFrontier.add(edge);
+      }
+    }
+    
+    if (edgesOnFrontier.length !== 2) {
+      console.log("Failure to properly implement Prim's algorithm");
+    }
+
+    while (nodesNotInTree.length > 0) {
+      // Select an edge {u,v|u∈S1,v∈S2,(u,v)∈E} with minimum weight
+      edgesOnFrontier.sort((e1, e2) => e1.weight - e2.weight);
+      let edge = edgesOnFrontier.shift();
+
+      // Add {u,v} to T
+      edgesInTree.push(edge);
+
+      // Add v to S1
+      nodesInTree.push(edge.cells[1]);
+
+      // Add all edges in {v,w|w∈S2} into E
+      for (let edge of edges) {
+        if (nodesInTree.includes(edge.cells[0]) && nodesNotInTree.includes(edge.cells[1])) {
+          edgesOnFrontier.add(edge);
+        }
+        if (nodesInTree.includes(edge.cells[1]) && nodesNotInTree.includes(edge.cells[0])) {
+          edgesOnFrontier.add(edge);
+        }
+      }
+    }
+
+    for (let edge of edgesInTree) {
+      edge.spawnGate();
+    }
+
+
+
+    console.log(`Generated block at ${x},${y} with ${Object.values(blockCells).length} cells`);
     // Add gates at edges of block
   }
 
