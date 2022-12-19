@@ -78,15 +78,17 @@ export class Maze {
     let nodesNotInTree = blockCells.slice(1);
 
     let edgesInTree = [];
+    let i=0;
     while (nodesNotInTree.length) {
       let nextEdge = this.stepPrims(nodesInTree, nodesNotInTree);
       if (!nextEdge) {
         console.warn("Prim's tripped - failed to find edge to add to tree");
         break;
       }
-      edgesInTree.push();
+      edgesInTree.push(nextEdge);
+      i++;
     }
-
+    console.log(`Generated MST with ${edgesInTree.length} edges in ${i} steps.`);
     return edgesInTree;
   }
 

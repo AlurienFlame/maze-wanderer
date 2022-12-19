@@ -1,12 +1,8 @@
 import { Maze } from './maze.js';
 const maze = new Maze();
-const blockSize = 2;
-maze.generateBlock(0, 0, blockSize, blockSize);
-// maze.generateBlock(blockSize, 0, blockSize, blockSize);
-
-// Display & Events
 const mazeElem = document.getElementById('maze');
 
+// Zoom
 mazeElem.addEventListener('wheel', (e) => {
   zoom(e.deltaY);
 });
@@ -14,7 +10,6 @@ mazeElem.addEventListener('wheel', (e) => {
 let tileSize = 30; // px
 let rows = 0; // Actual number of elements, not data structure
 let cols = 0;
-zoom(0); // Generate initial elements
 
 // Update the width of tile elements, and add/remove them as needed
 function zoom(delta) {
@@ -86,7 +81,8 @@ function zoom(delta) {
   render();
 }
 
-mazeElem.addEventListener('keyup', (e) => {
+// Pan
+document.addEventListener('keyup', (e) => {
   if (e.key === 'ArrowUp') {
     pan(0, -1);
   } else if (e.key === 'ArrowDown') {
@@ -98,19 +94,25 @@ mazeElem.addEventListener('keyup', (e) => {
   }
 });
 
+let cameraX = 0;
+let cameraY = 0;
+const blockSize = 8;
+
 // Change tile element classes to represent a different part of the maze state
 // Should get called during pathfinding traversal
 function pan(deltaX, deltaY) {
-  // TODO
-  console.warn('pan() not implemented');
+  cameraX += deltaX;
+  cameraY += deltaY;
+  render();
 }
 
+// Render the maze state to the DOM
 function render() {
   for (let i = 0; i < mazeElem.children.length; i++) {
     let tile = mazeElem.children[i];
     let x = i % cols;
     let y = Math.floor(i / cols);
-    let cell = maze.getCell(x, y);
+    let cell = maze.getCell(x + cameraX, y + cameraY);
 
     // Reset tile style
     tile.style.borderTop = `1px solid #665C54`;
@@ -134,6 +136,13 @@ function render() {
     if (cell.right) tile.style.borderRight = `1px dashed #665C5455`;
 
   }
+}
 
+main();
+function main() {
+  maze.generateBlock(0, 0, blockSize, blockSize);
+  // maze.generateBlock(blockSize, 0, blockSize, blockSize);
+
+  zoom(0); // Generate initial tile elements
 
 }
