@@ -176,6 +176,10 @@ function render() {
 mazeElem.addEventListener('click', (e) => {
   if (e.target === mazeElem) return; // Click and drag gets wrong target
   let {x, y} = cellCoordsFromTileIndex(Array.from(mazeElem.children).indexOf(e.target));
+  if (!maze.getCell(x, y)) {
+    // Generate a new block if clicked outside of existing maze
+    maze.generateBlock(x, y, blockSize, blockSize);
+  }
   guide.updateTargetCell(x, y);
   render();
 });

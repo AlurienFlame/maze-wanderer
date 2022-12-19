@@ -2,11 +2,10 @@
   --background-color: #3C3836;
   --maze-color: #504945;
   --wall-color: #665C54;
-  --path-color: #928374;
   --guide-color: #fe8019;
   --path-color: #8EC07C;
   --target-color: #D3869B;
-  --visited-color: #A89984;
+  --visited-color: #928374;
 }
 
 body {

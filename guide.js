@@ -21,6 +21,7 @@ export class Guide {
     // TODO: Check reachability
   }
 
+  // TODO: call this from outside of class
   stepAlongPath() {
     let nextCell = this.path.shift();
     if (!nextCell) return;
@@ -37,6 +38,10 @@ export class Guide {
 
     this.path = [];
     for (let pathCell = targetCell; pathCell !== this.pos; pathCell = pathCell.pathOrigin) {
+      if (!pathCell) {
+        console.warn("Failed to follow path");
+        return;
+      }
       this.path.push(pathCell);
     }
   }

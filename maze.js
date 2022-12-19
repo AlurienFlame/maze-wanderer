@@ -93,6 +93,7 @@ export class Maze {
   }
 
   generateBlock(x, y, width, height) {
+    // FIXME: Fails to make a gate to (x,y) unless (x,y)==(0,0)
     // Generate cells
     let blockCells = [];
     for (let i = x; i < x + width; i++) {
