@@ -35,7 +35,6 @@ export class Guide {
 
     while (!this.stepAStar(frontier));
 
-    // TODO: Reconstruct path from visited
     this.path = [];
     for (let pathCell = targetCell; pathCell !== this.pos; pathCell = pathCell.pathOrigin) {
       this.path.push(pathCell);
@@ -54,10 +53,11 @@ export class Guide {
 
     this.visited.push(cell);
     let neighbors = cell.getNeighborsByEdges();
-    let unexploredNeighbors = neighbors.filter(neighbor => !this.visited.includes(neighbor));
-    frontier.push(...unexploredNeighbors);
+    let unexploredNeighbors = neighbors.filter(neighbor => !this.visited.includes(neighbor) && !frontier.includes(neighbor));
+    let reachableNeighbors = unexploredNeighbors.filter(neighbor => cell.hasGateTo(neighbor));
+    frontier.push(...reachableNeighbors);
 
-    for (let neighbor of unexploredNeighbors) {
+    for (let neighbor of reachableNeighbors) {
       neighbor.pathOrigin = cell;
     }
   }

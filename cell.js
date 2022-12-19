@@ -10,6 +10,7 @@ export class Cell {
     this.x = x;
     this.y = y;
     this.maze = maze;
+    // TODO: rework gates to be more like edges
     this.up = false;
     this.down = false;
     this.left = false;
@@ -67,5 +68,26 @@ export class Cell {
 
   toString() {
     return `Cell(${this.x},${this.y})`;
+  }
+
+  // Returns true if this. the direction to cell and cell. the direction to this are both true
+  hasGateTo(cell) {
+    if (this.x === cell.x) {
+      if (this.y === cell.y - 1) {
+        return this.down && cell.up;
+      }
+      if (this.y === cell.y + 1) {
+        return this.up && cell.down;
+      }
+    } else if (this.y === cell.y) {
+      if (this.x === cell.x - 1) {
+        return this.right && cell.left;
+      }
+      if (this.x === cell.x + 1) {
+        return this.left && cell.right;
+      }
+    } else {
+      console.warn(`Cells ${this} and ${cell} are not neighbors`);
+    }
   }
 }
