@@ -103,9 +103,16 @@ export class Maze {
     for (let edge of this.primsAlgorithm(blockCells)) {
       edge.spawnGate();
     }
-
+    
     console.log(`Generated block at ${x},${y} with ${Object.values(blockCells).length} cells`);
+
     // Add gates at edges of block
+    for (let cell of blockCells) {
+      if (cell.y === y + (height / 2) && cell.x === x) cell.openGate("left");
+      if (cell.y === y + (height / 2) && cell.x === x + width - 1) cell.openGate("right");
+      if (cell.x === x + (width / 2) && cell.y === y) cell.openGate("up");
+      if (cell.x === x + (width / 2) && cell.y === y + height - 1) cell.openGate("down");
+    }
   }
 
   getCell(x, y) {
