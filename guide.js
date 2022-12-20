@@ -4,9 +4,7 @@ export class Guide {
   constructor(maze) {
     this.maze = maze;
     this.pos = null;
-    this.path = [];
-    this.visited = [];
-    this.targetCell = null;
+    this.resetPathfinding();
   }
 
   // Modify the agent's pathfinding target to (x,y),
@@ -17,16 +15,36 @@ export class Guide {
       console.warn(`Target cell ${x},${y} is not in maze`);
       return false;
     }
-    this.aStar(this.targetCell);
-    // TODO: Check reachability
+    this.frontier = [this.pos];
+  }
+
+  resetPathfinding() {
+    this.targetCell = null;
+    this.path = [];
+    this.visited = [];
+    this.frontier = [];
   }
 
   mainLoop() {
     if (!this.targetCell) return;
-    if (this.path.includes(this.targetCell)) {
+    if (this.path.length) {
       this.stepAlongPath();
     } else {
-      this.aStar(this.targetCell);
+      if (this.stepAStar(this.frontier)) {
+        // aStar reached target or otherwise couldn't step
+
+        // Build path from visited
+        this.path = [];
+        for (let pathCell = this.targetCell; pathCell != this.pos ; pathCell = pathCell.pathOrigin) {
+          if (!pathCell) {
+            // This is normal if the target is unreachable
+            console.log("Failed to construct path, giving up.");
+            this.resetPathfinding();
+            return;
+          }
+          this.path.push(pathCell);
+        }
+      }
     }
   }
 
@@ -37,31 +55,11 @@ export class Guide {
 
     // Reached target
     if (this.pos === this.targetCell) {
-      this.targetCell = null;
-      this.path = [];
-      this.visited = [];
+      this.resetPathfinding();
     }
   }
 
   // TODO: this is BFS, make it actually aStar
-  // Given a target cell, return a path to it as a
-  // list of cells, sorted from start to end
-  aStar(targetCell) {
-    let frontier = [this.pos];
-    this.visited = [];
-
-    while (!this.stepAStar(frontier));
-
-    this.path = [];
-    for (let pathCell = targetCell; pathCell !== this.pos; pathCell = pathCell.pathOrigin) {
-      if (!pathCell) {
-        console.warn("Failed to follow path");
-        return;
-      }
-      this.path.push(pathCell);
-    }
-  }
-
   // Modifies frontier and visited, returns true if it reaches targetCell
   stepAStar(frontier) {
     if (!frontier.length) {
