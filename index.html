@@ -6,10 +6,25 @@
   <title>Maze Wanderer</title>
   <link rel="stylesheet" href="style.css">
   <script src="main.js" type="module" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap" rel="stylesheet" />
   <!-- TODO: favicon -->
 </head>
 <body>
+  <div class="titlebar">
+    <h1>Maze Wanderer</h1>
+    <div class="links">
+      <a href="https://lucienlasseau.com">Author</a>
+      <a href="https://github.com/AlurienFlame/maze-wanderer">GitHub</a>
+    </div>
+  </div>
   <div id="maze">
   </div>
+  <p>
+    Scroll to zoom, arrow keys to move.<br/>
+    Click a location to pathfind to it.<br/>
+    Click outside of the maze to generate additional chunks.
+  </p>
 </body>
 </html>

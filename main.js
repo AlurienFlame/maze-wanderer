@@ -101,7 +101,7 @@ document.addEventListener('keyup', (e) => {
 
 let cameraX = 0; // Cell coords
 let cameraY = 0;
-const blockSize = 8;
+const blockSize = 32;
 
 // Change tile element classes to represent a different part of the maze state
 // Should get called during pathfinding traversal
