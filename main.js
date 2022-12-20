@@ -189,7 +189,7 @@ mazeElem.addEventListener('click', (e) => {
 setInterval(() => {
   guide.mainLoop();
   render();
-}, 1000 / 10);
+}, 1000 / 30);
 
 main();
 function main() {

@@ -11,14 +11,14 @@ export class Guide {
   // Modify the agent's pathfinding target to (x,y),
   // returns true if the target is reachable, false otherwise
   updateTargetCell(x, y) {
+    this.resetPathfinding();
     this.targetCell = this.maze.getCell(x, y);
     if (!this.targetCell) {
+      // This should never happen now, as we generate blocks on click
       console.warn(`Target cell ${x},${y} is not in maze`);
       return false;
     }
-    if (!this.frontier.length) {
-      this.frontier = [this.pos];
-    }
+    this.frontier = [this.pos];
   }
 
   resetPathfinding() {
@@ -30,7 +30,7 @@ export class Guide {
 
   mainLoop() {
     if (!this.targetCell) return;
-    if (this.path.length) {
+    if (this.path.length) { // FIXME: Follows path even if target got moved
       this.stepAlongPath();
     } else {
       if (this.stepAStar()) {
@@ -69,6 +69,7 @@ export class Guide {
       return true;
     }
 
+    this.frontier.sort((a, b) => a.detourCost - b.detourCost);
     let cell = this.frontier.shift();
     if (cell === this.targetCell) return true;
 
@@ -79,11 +80,17 @@ export class Guide {
 
     this.visited.push(cell);
     let neighbors = cell.getNeighborsByEdges();
-    let unexploredNeighbors = neighbors.filter(neighbor => !this.visited.includes(neighbor) && !this.frontier.includes(neighbor));
-    let reachableNeighbors = unexploredNeighbors.filter(neighbor => cell.hasGateTo(neighbor));
-    this.frontier.push(...reachableNeighbors);
 
-    for (let neighbor of reachableNeighbors) {
+    for (let neighbor of neighbors) {
+      if (this.visited.includes(neighbor) || this.frontier.includes(neighbor)) continue;
+      if (!cell.hasGateTo(neighbor)) continue;
+
+      this.distanceFromStart = (cell.distanceFromStart ?? 0) + 1;
+      let distanceToTarget =
+        Math.abs(neighbor.x - this.targetCell.x) +
+        Math.abs(neighbor.y - this.targetCell.y);
+      neighbor.detourCost = this.distanceFromStart + distanceToTarget;
+      this.frontier.push(neighbor);
       this.origins[neighbor] = cell;
     }
   }
