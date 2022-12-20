@@ -124,6 +124,8 @@ function cellCoordsFromTileIndex(index) {
   }
   let x = index % cols;
   let y = Math.floor(index / cols);
+  x += cameraX;
+  y += cameraY;
   return { x, y };
 }
 
@@ -132,7 +134,7 @@ function render() {
   for (let i = 0; i < mazeElem.children.length; i++) {
     let tile = mazeElem.children[i];
     let { x, y } = cellCoordsFromTileIndex(i);
-    let cell = maze.getCell(x + cameraX, y + cameraY);
+    let cell = maze.getCell(x, y);
 
     // Reset tile style
     tile.style.borderTop = `1px solid ${style('--wall-color')}`;
@@ -175,7 +177,7 @@ function render() {
 // Control Guide
 mazeElem.addEventListener('click', (e) => {
   if (e.target === mazeElem) return; // Click and drag gets wrong target
-  let {x, y} = cellCoordsFromTileIndex(Array.from(mazeElem.children).indexOf(e.target));
+  let { x, y } = cellCoordsFromTileIndex(Array.from(mazeElem.children).indexOf(e.target));
   if (!maze.getCell(x, y)) {
     // Generate a new block if clicked outside of existing maze
     maze.generateBlock(x - x % blockSize, y - y % blockSize, blockSize, blockSize);
