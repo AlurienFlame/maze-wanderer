@@ -186,6 +186,11 @@ mazeElem.addEventListener('click', (e) => {
   render();
 });
 
+setInterval(() => {
+  guide.mainLoop();
+  render();
+}, 1000 / 10);
+
 main();
 function main() {
   maze.generateBlock(0, 0, blockSize, blockSize);

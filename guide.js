@@ -21,13 +21,29 @@ export class Guide {
     // TODO: Check reachability
   }
 
-  // TODO: call this from outside of class
-  stepAlongPath() {
-    let nextCell = this.path.shift();
-    if (!nextCell) return;
-    this.pos = nextCell;
+  mainLoop() {
+    if (!this.targetCell) return;
+    if (this.path.includes(this.targetCell)) {
+      this.stepAlongPath();
+    } else {
+      this.aStar(this.targetCell);
+    }
   }
 
+  stepAlongPath() {
+    // Step
+    let nextCell = this.path.pop();
+    this.pos = nextCell;
+
+    // Reached target
+    if (this.pos === this.targetCell) {
+      this.targetCell = null;
+      this.path = [];
+      this.visited = [];
+    }
+  }
+
+  // TODO: this is BFS, make it actually aStar
   // Given a target cell, return a path to it as a
   // list of cells, sorted from start to end
   aStar(targetCell) {
@@ -55,6 +71,11 @@ export class Guide {
 
     let cell = frontier.shift();
     if (cell === this.targetCell) return true;
+
+    if (!cell) {
+      console.warn("Cell in frontier is null");
+      return true;
+    }
 
     this.visited.push(cell);
     let neighbors = cell.getNeighborsByEdges();
