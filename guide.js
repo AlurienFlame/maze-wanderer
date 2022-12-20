@@ -4,6 +4,7 @@ export class Guide {
   constructor(maze) {
     this.maze = maze;
     this.pos = null;
+    this.origins = {};
     this.resetPathfinding();
   }
 
@@ -15,7 +16,9 @@ export class Guide {
       console.warn(`Target cell ${x},${y} is not in maze`);
       return false;
     }
-    this.frontier = [this.pos];
+    if (!this.frontier.length) {
+      this.frontier = [this.pos];
+    }
   }
 
   resetPathfinding() {
@@ -30,12 +33,12 @@ export class Guide {
     if (this.path.length) {
       this.stepAlongPath();
     } else {
-      if (this.stepAStar(this.frontier)) {
+      if (this.stepAStar()) {
         // aStar reached target or otherwise couldn't step
 
         // Build path from visited
         this.path = [];
-        for (let pathCell = this.targetCell; pathCell != this.pos ; pathCell = pathCell.pathOrigin) {
+        for (let pathCell = this.targetCell; pathCell != this.pos; pathCell = this.origins[pathCell]) {
           if (!pathCell) {
             // This is normal if the target is unreachable
             console.log("Failed to construct path, giving up.");
@@ -59,15 +62,14 @@ export class Guide {
     }
   }
 
-  // TODO: this is BFS, make it actually aStar
   // Modifies frontier and visited, returns true if it reaches targetCell
-  stepAStar(frontier) {
-    if (!frontier.length) {
+  stepAStar() {
+    if (!this.frontier.length) {
       console.warn("No path to target");
       return true;
     }
 
-    let cell = frontier.shift();
+    let cell = this.frontier.shift();
     if (cell === this.targetCell) return true;
 
     if (!cell) {
@@ -77,12 +79,12 @@ export class Guide {
 
     this.visited.push(cell);
     let neighbors = cell.getNeighborsByEdges();
-    let unexploredNeighbors = neighbors.filter(neighbor => !this.visited.includes(neighbor) && !frontier.includes(neighbor));
+    let unexploredNeighbors = neighbors.filter(neighbor => !this.visited.includes(neighbor) && !this.frontier.includes(neighbor));
     let reachableNeighbors = unexploredNeighbors.filter(neighbor => cell.hasGateTo(neighbor));
-    frontier.push(...reachableNeighbors);
+    this.frontier.push(...reachableNeighbors);
 
     for (let neighbor of reachableNeighbors) {
-      neighbor.pathOrigin = cell;
+      this.origins[neighbor] = cell;
     }
   }
 
