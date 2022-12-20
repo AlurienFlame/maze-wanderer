@@ -69,13 +69,14 @@ export class Maze {
     }
 
     // Apply Prim's algorithm to generate a minimum spanning tree
+    let nodesNotInTree = [...blockCells];
     let nodesInTree = Object.values(this.cells).filter(
       cell => cell.inMST
     );
     if (!nodesInTree.length) {
       nodesInTree = [blockCells[0]];
+      nodesNotInTree.splice(0, 1);
     }
-    let nodesNotInTree = blockCells.slice(1);
 
     let edgesInTree = [];
     let i=0;
@@ -93,7 +94,6 @@ export class Maze {
   }
 
   generateBlock(x, y, width, height) {
-    // FIXME: Fails to make a gate to (x,y) unless (x,y)==(0,0)
     // Generate cells
     let blockCells = [];
     for (let i = x; i < x + width; i++) {
