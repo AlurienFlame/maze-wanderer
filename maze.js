@@ -77,6 +77,7 @@ export class Maze {
       nodesInTree = [blockCells[0]];
       nodesNotInTree.splice(0, 1);
     }
+    // FIXME: Generating wrong when not connected to existing maze
 
     let edgesInTree = [];
     let i=0;
