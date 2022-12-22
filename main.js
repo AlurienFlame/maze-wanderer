@@ -1,6 +1,5 @@
 import { Maze } from './maze.js';
 import { Guide } from './guide.js';
-import { Cell } from './cell.js';
 const maze = new Maze();
 const mazeElem = document.getElementById('maze');
 const guide = new Guide(maze);
@@ -9,89 +8,24 @@ const guide = new Guide(maze);
 mazeElem.addEventListener('wheel', (e) => {
   zoom(e.deltaY);
 });
-window.addEventListener('resize', () => {
+window.addEventListener('resize', updateSize);
+function updateSize() {
   zoom(0);
-});
+
+  // Reactive canvas
+  let minViewSize = Math.min(mazeElem.clientWidth, mazeElem.clientHeight);
+  mazeElem.setAttribute('width', minViewSize);
+  mazeElem.setAttribute('height', minViewSize);
+}
 
 let tileSize = 30; // px
-let rows = 0; // Actual number of elements, not data structure
-let cols = 0;
+let strokeSize;
 
 // Update the width of tile elements, and add/remove them as needed
 function zoom(delta) {
   delta = -Math.min(Math.max(delta, -1), 1); // Clamp and invert
-  let rowsBeforeZoom = Math.ceil(mazeElem.clientHeight / tileSize);
-  let colsBeforeZoom = Math.ceil(mazeElem.clientWidth / tileSize);
-  let deltaPxEntireBoard = delta * tileSize;
-  let deltaPxPerTile = deltaPxEntireBoard / Math.max(rowsBeforeZoom, colsBeforeZoom);
-  let newTileSize = tileSize + deltaPxPerTile;
-
-  // Clamp zoom level
-  const MIN_TILE_SIZE = 3;
-  const MAX_TILE_SIZE = Math.min(mazeElem.clientWidth, mazeElem.clientHeight);
-  if (newTileSize < MIN_TILE_SIZE || newTileSize > MAX_TILE_SIZE) return;
-
-  tileSize = newTileSize; // to update the global variable
-  let rowsAfterZoom = Math.ceil(mazeElem.clientHeight / newTileSize);
-  let colsAfterZoom = Math.ceil(mazeElem.clientWidth / newTileSize);
-  
-  let deltaRows = rowsAfterZoom - rows;
-  let deltaCols = colsAfterZoom - cols;
-
-  // FIXME: Rectangular zoom shouldn't even be possible anyway
-  if (deltaRows !== deltaCols) {
-    console.error("Attempted rectangular zoom, which is not supported");
-    return;
-  }
-
-  // Rows
-  if (deltaRows > 0) {
-    for (let i = 0; i < deltaRows; i++) {
-      // Add a row
-      for (let j = 0; j < cols; j++) {
-        let tile = document.createElement('div');
-        tile.classList.add('tile');
-        mazeElem.appendChild(tile);
-      }
-      rows++;
-      mazeElem.style.setProperty('--rows', rows);
-    }
-  } else if (deltaRows < 0) {
-    for (let i = 0; i < -deltaRows; i++) {
-      // Remove a row
-      for (let j = 0; j < cols; j++) {
-        mazeElem.removeChild(mazeElem.lastChild);
-      }
-      rows--;
-      mazeElem.style.setProperty('--rows', rows);
-    }
-  }
-
-  // Columns
-  if (deltaCols > 0) {
-    for (let i = 0; i < deltaCols; i++) {
-      // Add a column
-      for (let j = 0; j < rows; j++) {
-        let tile = document.createElement('div');
-        tile.classList.add('tile');
-        mazeElem.insertBefore(tile, mazeElem.children[j * cols + i]);
-      }
-      cols++;
-      mazeElem.style.setProperty('--cols', cols);
-    }
-  } else if (deltaCols < 0) {
-    for (let i = 0; i < -deltaCols; i++) {
-      // Remove a column
-      for (let j = 0; j < rows; j++) {
-        if (mazeElem.children[j * cols] === undefined) {
-          console.error('Undefined child', j * cols);
-        }
-        mazeElem.removeChild(mazeElem.children[j * cols]);
-      }
-      cols--;
-      mazeElem.style.setProperty('--cols', cols);
-    }
-  }
+  tileSize += delta;
+  strokeSize = Math.max(1, Math.floor(tileSize / 10));
 
   render();
 }
@@ -127,63 +61,65 @@ function style(name) {
   return rootStyles.getPropertyValue(name);
 }
 
-function cellCoordsFromTileIndex(index) {
-  if (isNaN(index)) {
-    console.error('Invalid index to get cell coords from', index);
-    return { x: 0, y: 0 };
-  }
-  let x = index % cols;
-  let y = Math.floor(index / cols);
-  x += cameraX;
-  y += cameraY;
-  return { x, y };
-}
-
-// Render the maze state to the DOM
 function render() {
-  for (let i = 0; i < mazeElem.children.length; i++) {
-    let tile = mazeElem.children[i];
-    let { x, y } = cellCoordsFromTileIndex(i);
-    let cell = maze.getCell(x, y);
+  let ctx = mazeElem.getContext('2d');
+  ctx.strokeStyle = style('--wall-color');
+  ctx.lineWidth = strokeSize;
+  for (let x = 0; x <= Math.floor(mazeElem.clientWidth / tileSize); x++) {
+    for (let y = 0; y <= Math.floor(mazeElem.clientHeight / tileSize); y++) {
+      let cellX = x + cameraX;
+      let cellY = y + cameraY;
+      let pX = x * tileSize;
+      let pY = y * tileSize;
+      let cell = maze.getCell(cellX, cellY);
+      
+      // Cell background
+      if (!cell) {
+        ctx.fillStyle = style('--background-color');
+      } else if (guide.pos == cell) {
+        ctx.fillStyle = style('--guide-color');
+      } else if (guide.targetCell == cell) {
+        ctx.fillStyle = style('--target-color');
+      } else if (guide.path.includes(cell)) {
+        ctx.fillStyle = style('--path-color');
+      } else if (guide.visited.includes(cell)) {
+        ctx.fillStyle = style('--visited-color');
+      } else {
+        ctx.fillStyle = style('--maze-color');
+      }
 
-    // Reset tile style
-    tile.style.borderTop = `1px solid ${style('--wall-color')}`;
-    tile.style.borderBottom = `1px solid ${style('--wall-color')}`;
-    tile.style.borderLeft = `1px solid ${style('--wall-color')}`;
-    tile.style.borderRight = `1px solid ${style('--wall-color')}`;
-    tile.style.backgroundColor = 'transparent';
-    if (!cell) {
-      tile.style.backgroundColor = style('--background-color');
-    }
-
-    if (!cell) continue;
-    // Set tile style based on cell state
-    if (cell.hasGateToDirection("up")) tile.style.borderTop = 'none';
-    if (cell.hasGateToDirection("down")) tile.style.borderBottom = 'none';
-    if (cell.hasGateToDirection("left")) tile.style.borderLeft = 'none';
-    if (cell.hasGateToDirection("right")) tile.style.borderRight = 'none';
-
-    // Render guide and its path
-    if (!guide) continue;
-    if (guide.visited.includes(cell)) {
-      tile.style.backgroundColor = style('--visited-color');
-    }
-    if (guide.path.includes(cell)) {
-      tile.style.backgroundColor = style('--path-color');
-    }
-    if (guide.targetCell === cell) {
-      tile.style.backgroundColor = style('--target-color');
-    }
-    if (guide.pos === cell) {
-      tile.style.backgroundColor = style('--guide-color');
+      // Cell borders
+      ctx.beginPath();
+      if (cell) {
+        if (!cell.hasGateToDirection("up")) {
+          ctx.moveTo(pX, pY);
+          ctx.lineTo(pX + tileSize, pY);
+        }
+        if (!cell.hasGateToDirection("down")) {
+          ctx.moveTo(pX, pY + tileSize);
+          ctx.lineTo(pX + tileSize, pY + tileSize);
+        }
+        if (!cell.hasGateToDirection("left")) {
+          ctx.moveTo(pX, pY);
+          ctx.lineTo(pX, pY + tileSize);
+        }
+        if (!cell.hasGateToDirection("right")) {
+          ctx.moveTo(pX + tileSize, pY);
+          ctx.lineTo(pX + tileSize, pY + tileSize);
+        }
+      }
+      ctx.fillRect(pX, pY, tileSize, tileSize);
+      ctx.stroke();
     }
   }
 }
 
 // Control Guide
 mazeElem.addEventListener('click', (e) => {
-  if (e.target === mazeElem) return; // Click and drag gets wrong target
-  let { x, y } = cellCoordsFromTileIndex(Array.from(mazeElem.children).indexOf(e.target));
+  let Px = e.offsetX;
+  let Py = e.offsetY;
+  let x = Math.floor(Px / tileSize) + cameraX;
+  let y = Math.floor(Py / tileSize) + cameraY;
   if (!maze.getCell(x, y)) {
     // Generate a new block if clicked outside of existing maze
     maze.generateBlock(Math.floor(x / blockSize)*blockSize, Math.floor(y / blockSize)*blockSize, blockSize, blockSize);
@@ -200,10 +136,8 @@ setInterval(() => {
 main();
 function main() {
   maze.generateBlock(0, 0, blockSize, blockSize);
-  // maze.generateBlock(blockSize, 0, blockSize, blockSize);
   guide.pos = maze.getCell(0, 0);
 
 
-  zoom(0); // Generate initial tile elements
-
+  updateSize();
 }

@@ -43,14 +43,10 @@ a:visited {
 
 #maze {
   margin: 1rem;
-  width: min(70vw, 70vh);
-  aspect-ratio: 1;
+  --size: min(70vw, 70vh);
+  width: var(--size);
+  height: var(--size);
   background-color: var(--maze-color);
-  display: grid;
-  --rows: 0;
-  --cols: 0;
-  grid-template-rows: repeat(var(--rows), 1fr);
-  grid-template-columns: repeat(var(--cols), 1fr);
 }
 
 .tile {
