@@ -120,6 +120,7 @@ function render() {
 mazeElem.addEventListener('click', (e) => {
   let Px = e.offsetX;
   let Py = e.offsetY;
+  // FIXME: x and y are offest by chunk coords
   let x = Math.floor(Px / tileSize) + cameraX;
   let y = Math.floor(Py / tileSize) + cameraY;
   if (!grid.getCell(x, y)) {

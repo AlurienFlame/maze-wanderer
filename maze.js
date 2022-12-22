@@ -16,10 +16,14 @@ export class Maze {
       }
     }
 
+    if (edgesOnFrontier.length === 0) {
+      console.warn("No edges on frontier");
+      return;
+    }
+
     // Pick an edge at random from the frontier
     let nextEdge = edgesOnFrontier[Math.floor(Math.random() * edgesOnFrontier.length)];
 
-    // Make sure the algorithm is working correctly
     if (!nextEdge) {
       console.warn("Could not find edge to add to tree");
       return;
@@ -50,7 +54,8 @@ export class Maze {
     let nodesInTree = Object.values(allCells).filter(
       cell => this.tree.includes(cell)
     );
-    if (!nodesInTree.length) {
+    // Edge case: Chunk is not adjacent to any existing tree cells
+    if (!nodesNotInTree.some(cell => cell.getNeighborsByEdges().some(neighbor => this.tree.includes(neighbor)))) {
       nodesInTree = [chunkCells[0]];
       nodesNotInTree.splice(0, 1);
     }
