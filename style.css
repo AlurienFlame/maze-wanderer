@@ -43,7 +43,7 @@ a:visited {
 
 #maze {
   margin: 1rem;
-  height: 90vh;
+  width: min(70vw, 70vh);
   aspect-ratio: 1;
   background-color: var(--maze-color);
   display: grid;

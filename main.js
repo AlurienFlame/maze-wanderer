@@ -148,14 +148,10 @@ function render() {
 
     if (!cell) continue;
     // Set tile style based on cell state
-    // if (cell.up) tile.style.borderTop = 'none';
-    // if (cell.down) tile.style.borderBottom = 'none';
-    // if (cell.left) tile.style.borderLeft = 'none';
-    // if (cell.right) tile.style.borderRight = 'none';
-    if (cell.up) tile.style.borderTop = `1px dashed ${style('--wall-color')}bb`;
-    if (cell.down) tile.style.borderBottom = `1px dashed ${style('--wall-color')}bb`;
-    if (cell.left) tile.style.borderLeft = `1px dashed ${style('--wall-color')}bb`;
-    if (cell.right) tile.style.borderRight = `1px dashed ${style('--wall-color')}bb`;
+    if (cell.up) tile.style.borderTop = 'none';
+    if (cell.down) tile.style.borderBottom = 'none';
+    if (cell.left) tile.style.borderLeft = 'none';
+    if (cell.right) tile.style.borderRight = 'none';
 
     // Render guide and its path
     if (!guide) continue;
