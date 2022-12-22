@@ -3,9 +3,8 @@ import { Edge } from "./edge.js";
 
 export class Maze {
   constructor() {
-    this.cells = {};
+    this.tree = [];
   }
-
   // Moves a node from inTree to notInTree based on Prim's algorithm,
   // and returns the edge that connects the node to the tree.
   stepPrims(nodesInTree, nodesNotInTree) {
@@ -46,38 +45,22 @@ export class Maze {
     let nodeToAdd = nodesNotInTree.includes(smallestEdge.cell1) ? smallestEdge.cell1 : smallestEdge.cell2;
     nodesNotInTree.splice(nodesNotInTree.indexOf(nodeToAdd), 1);
     nodesInTree.push(nodeToAdd);
-    nodeToAdd.inMST = true;
+    this.tree.push(nodeToAdd);
 
     return smallestEdge;
   }
 
-  // Generate a minimum spanning tree of cells
-  primsAlgorithm(blockCells) {
-    // Generate an edge between each cell in the block and its neighbor
-    for (let cell of Object.values(blockCells)) {
-      if (cell.getNeighbor("right")) new Edge(cell, cell.getNeighbor("right"));
-      if (cell.getNeighbor("down")) new Edge(cell, cell.getNeighbor("down"));
-    }
+  // Apply Prim's algorithm to generate a minimum spanning tree
+  primsAlgorithm(allCells, chunkCells) {
 
-    // Generate edges to already generated sections of the maze
-    for (let cell of Object.values(blockCells)) {
-      for (let neighbor of cell.getNeighbors()) {
-        if (neighbor.inMST) {
-          new Edge(cell, neighbor);
-        }
-      }
-    }
-
-    // Apply Prim's algorithm to generate a minimum spanning tree
-    let nodesNotInTree = [...blockCells];
-    let nodesInTree = Object.values(this.cells).filter(
-      cell => cell.inMST
+    let nodesNotInTree = [...chunkCells];
+    let nodesInTree = Object.values(allCells).filter(
+      cell => this.tree.includes(cell)
     );
     if (!nodesInTree.length) {
-      nodesInTree = [blockCells[0]];
+      nodesInTree = [chunkCells[0]];
       nodesNotInTree.splice(0, 1);
     }
-    // FIXME: Generating wrong when not connected to existing maze
 
     let edgesInTree = [];
     let i=0;
@@ -94,47 +77,10 @@ export class Maze {
     return edgesInTree;
   }
 
-  generateBlock(x, y, width, height) {
-    // Generate cells
-    let blockCells = [];
-    for (let i = x; i < x + width; i++) {
-      for (let j = y; j < y + height; j++) {
-        let cell = new Cell(i, j, this);
-        this.setCell(i, j, cell);
-        blockCells.push(cell);
-      }
-    }
-
-    for (let edge of this.primsAlgorithm(blockCells)) {
+  amazeChunk(allCells, chunkCells) {
+    let edgesInTree = this.primsAlgorithm(allCells, chunkCells);
+    for (let edge of edgesInTree) {
       edge.spawnGate();
     }
-
-    console.log(`Generated block at ${x},${y} with ${Object.values(blockCells).length} cells`);
-    this.validate();
-  }
-
-  getCell(x, y) {
-    return this.cells[`${x},${y}`];
-  }
-
-  setCell(x, y, cell) {
-    this.cells[`${x},${y}`] = cell;
-  }
-
-  validate() {
-    // No equivalent edges
-    // Since every edge's cells have pointers to it, we can check the cells for duplicates
-    // instead of n^2 checking every edge against every other edge
-    for (let cell of Object.values(this.cells)) {
-      if (!cell.validate()) {
-        console.warn(`Cell ${cell.x},${cell.y} failed to validate itself.`);
-        return false;
-      }
-    }
-    return true;
-  }
-
-  toString() {
-    return `Maze(${Object.values(this.cells).length})`;
   }
 }

@@ -1,38 +1,7 @@
-const coordFromDirection = {
-  "up": { x: 0, y: -1 },
-  "down": { x: 0, y: 1 },
-  "left": { x: -1, y: 0 },
-  "right": { x: 1, y: 0 }
-};
-
 export class Cell {
-  constructor(x, y, maze) {
-    this.x = x;
-    this.y = y;
-    this.maze = maze;
+  constructor() {
     this.edges = [];
-    this.inMST = false;
-  }
-
-  openGate(direction) {
-    let neighbor = this.getNeighbor(direction);
-    if (!neighbor) {
-      throw new Error(`Tried to open gate from ${this.toString()} in direction ${direction} but there is no neighbor in that direction`);
-    }
-    let edge = this.edges.find(edge => edge.cell1 === neighbor || edge.cell2 === neighbor);
-    if (!edge) {
-      throw new Error(`Tried to open gate from ${this.toString()} to ${neighbor.toString()} but there is no edge between them`);
-    }
-    edge.spawnGate();
-  }
-
-  getNeighbor(direction) {
-    if (!direction) console.log("Undefined direction given to getNeighbor");
-    return this.maze.getCell(this.x + coordFromDirection[direction].x, this.y + coordFromDirection[direction].y);
-  }
-
-  getNeighbors() {
-    return ["up", "down", "left", "right"].map(direction => this.getNeighbor(direction)).filter(neighbor => neighbor);
+    this.id = Math.floor(Math.random() * 1000000);
   }
 
   getNeighborsByEdges() {
@@ -57,16 +26,12 @@ export class Cell {
   }
 
   toString() {
-    return `Cell(${this.x},${this.y})`;
+    return `Cell(${this.edges.length} edges, ${this.edges.filter(edge => edge.hasGate).length} gates, ${this.id}))`;
   }
 
   hasGateTo(cell) {
     let edge = this.edges.find(edge => edge.cell1 === cell || edge.cell2 === cell);
     if (!edge) return false;
     return edge.hasGate;
-  }
-
-  hasGateToDirection(direction) {
-    return this.hasGateTo(this.getNeighbor(direction));
   }
 }

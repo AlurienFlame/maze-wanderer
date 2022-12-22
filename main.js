@@ -1,8 +1,10 @@
 import { Maze } from './maze.js';
 import { Guide } from './guide.js';
+import { SquareGrid } from './squareGrid.js';
 const maze = new Maze();
 const mazeElem = document.getElementById('maze');
-const guide = new Guide(maze);
+const grid = new SquareGrid();
+const guide = new Guide(grid);
 
 // Zoom
 mazeElem.addEventListener('wheel', (e) => {
@@ -45,7 +47,7 @@ document.addEventListener('keyup', (e) => {
 
 let cameraX = 0; // Cell coords
 let cameraY = 0;
-const blockSize = 32;
+const blockSize = 8;
 
 // Change tile element classes to represent a different part of the maze state
 // Should get called during pathfinding traversal
@@ -71,7 +73,7 @@ function render() {
       let cellY = y + cameraY;
       let pX = x * tileSize;
       let pY = y * tileSize;
-      let cell = maze.getCell(cellX, cellY);
+      let cell = grid.getCell(cellX, cellY);
       
       // Cell background
       if (!cell) {
@@ -91,19 +93,19 @@ function render() {
       // Cell borders
       ctx.beginPath();
       if (cell) {
-        if (!cell.hasGateToDirection("up")) {
+        if (!grid.getCell(cellX, cellY - 1)?.edges.find((e) => e.has(cell)).hasGate) {
           ctx.moveTo(pX, pY);
           ctx.lineTo(pX + tileSize, pY);
         }
-        if (!cell.hasGateToDirection("down")) {
+        if (!grid.getCell(cellX, cellY + 1)?.edges.find((e) => e.has(cell)).hasGate) {
           ctx.moveTo(pX, pY + tileSize);
           ctx.lineTo(pX + tileSize, pY + tileSize);
         }
-        if (!cell.hasGateToDirection("left")) {
+        if (!grid.getCell(cellX - 1, cellY)?.edges.find((e) => e.has(cell)).hasGate) {
           ctx.moveTo(pX, pY);
           ctx.lineTo(pX, pY + tileSize);
         }
-        if (!cell.hasGateToDirection("right")) {
+        if (!grid.getCell(cellX + 1, cellY)?.edges.find((e) => e.has(cell)).hasGate) {
           ctx.moveTo(pX + tileSize, pY);
           ctx.lineTo(pX + tileSize, pY + tileSize);
         }
@@ -120,9 +122,10 @@ mazeElem.addEventListener('click', (e) => {
   let Py = e.offsetY;
   let x = Math.floor(Px / tileSize) + cameraX;
   let y = Math.floor(Py / tileSize) + cameraY;
-  if (!maze.getCell(x, y)) {
+  if (!grid.getCell(x, y)) {
     // Generate a new block if clicked outside of existing maze
-    maze.generateBlock(Math.floor(x / blockSize)*blockSize, Math.floor(y / blockSize)*blockSize, blockSize, blockSize);
+    let chunk = grid.expand(Math.floor(x / blockSize)*blockSize, Math.floor(y / blockSize)*blockSize, blockSize, blockSize);
+    maze.amazeChunk(grid.cells, chunk);
   }
   guide.updateTargetCell(x, y);
   render();
@@ -135,8 +138,9 @@ setInterval(() => {
 
 main();
 function main() {
-  maze.generateBlock(0, 0, blockSize, blockSize);
-  guide.pos = maze.getCell(0, 0);
+  let initialChunk = grid.expand(0, 0, blockSize, blockSize);
+  maze.amazeChunk(grid.cells, initialChunk);
+  guide.pos = grid.getCell(0, 0);
 
 
   updateSize();
