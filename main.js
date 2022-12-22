@@ -1,5 +1,6 @@
 import { Maze } from './maze.js';
 import { Guide } from './guide.js';
+import { Cell } from './cell.js';
 const maze = new Maze();
 const mazeElem = document.getElementById('maze');
 const guide = new Guide(maze);
@@ -25,18 +26,25 @@ function zoom(delta) {
   let deltaPxPerTile = deltaPxEntireBoard / Math.max(rowsBeforeZoom, colsBeforeZoom);
   let newTileSize = tileSize + deltaPxPerTile;
 
-  // Clamp zoom level between 1px and the smaller of the maze's width and height
+  // Clamp zoom level
   const MIN_TILE_SIZE = 3;
   const MAX_TILE_SIZE = Math.min(mazeElem.clientWidth, mazeElem.clientHeight);
   if (newTileSize < MIN_TILE_SIZE || newTileSize > MAX_TILE_SIZE) return;
 
-
   tileSize = newTileSize; // to update the global variable
   let rowsAfterZoom = Math.ceil(mazeElem.clientHeight / newTileSize);
   let colsAfterZoom = Math.ceil(mazeElem.clientWidth / newTileSize);
+  
+  let deltaRows = rowsAfterZoom - rows;
+  let deltaCols = colsAfterZoom - cols;
+
+  // FIXME: Rectangular zoom shouldn't even be possible anyway
+  if (deltaRows !== deltaCols) {
+    console.error("Attempted rectangular zoom, which is not supported");
+    return;
+  }
 
   // Rows
-  let deltaRows = rowsAfterZoom - rows;
   if (deltaRows > 0) {
     for (let i = 0; i < deltaRows; i++) {
       // Add a row
@@ -60,7 +68,6 @@ function zoom(delta) {
   }
 
   // Columns
-  let deltaCols = colsAfterZoom - cols;
   if (deltaCols > 0) {
     for (let i = 0; i < deltaCols; i++) {
       // Add a column
@@ -76,6 +83,9 @@ function zoom(delta) {
     for (let i = 0; i < -deltaCols; i++) {
       // Remove a column
       for (let j = 0; j < rows; j++) {
+        if (mazeElem.children[j * cols] === undefined) {
+          console.error('Undefined child', j * cols);
+        }
         mazeElem.removeChild(mazeElem.children[j * cols]);
       }
       cols--;
@@ -148,10 +158,10 @@ function render() {
 
     if (!cell) continue;
     // Set tile style based on cell state
-    if (cell.up) tile.style.borderTop = 'none';
-    if (cell.down) tile.style.borderBottom = 'none';
-    if (cell.left) tile.style.borderLeft = 'none';
-    if (cell.right) tile.style.borderRight = 'none';
+    if (cell.hasGateToDirection("up")) tile.style.borderTop = 'none';
+    if (cell.hasGateToDirection("down")) tile.style.borderBottom = 'none';
+    if (cell.hasGateToDirection("left")) tile.style.borderLeft = 'none';
+    if (cell.hasGateToDirection("right")) tile.style.borderRight = 'none';
 
     // Render guide and its path
     if (!guide) continue;

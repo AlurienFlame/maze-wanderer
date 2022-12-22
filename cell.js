@@ -10,26 +10,20 @@ export class Cell {
     this.x = x;
     this.y = y;
     this.maze = maze;
-    // TODO: rework gates to be more like edges
-    this.up = false;
-    this.down = false;
-    this.left = false;
-    this.right = false;
     this.edges = [];
     this.inMST = false;
   }
 
   openGate(direction) {
-    this[direction] = true; // Open gate in this cell
     let neighbor = this.getNeighbor(direction);
-    if (!neighbor) return;
-    const oppositeDirection = {
-      "up": "down",
-      "down": "up",
-      "left": "right",
-      "right": "left"
-    };
-    neighbor[oppositeDirection[direction]] = true; // Open corresponding gate in neighbor
+    if (!neighbor) {
+      throw new Error(`Tried to open gate from ${this.toString()} in direction ${direction} but there is no neighbor in that direction`);
+    }
+    let edge = this.edges.find(edge => edge.cell1 === neighbor || edge.cell2 === neighbor);
+    if (!edge) {
+      throw new Error(`Tried to open gate from ${this.toString()} to ${neighbor.toString()} but there is no edge between them`);
+    }
+    edge.spawnGate();
   }
 
   getNeighbor(direction) {
@@ -43,10 +37,6 @@ export class Cell {
 
   getNeighborsByEdges() {
     return this.edges.map(edge => edge.cell1 === this ? edge.cell2 : edge.cell1);
-  }
-
-  createNeighbor(direction) {
-    return new Cell(this.x + coordFromDirection[direction].x, this.y + coordFromDirection[direction].y, this.maze);
   }
 
   validate() {
@@ -70,24 +60,13 @@ export class Cell {
     return `Cell(${this.x},${this.y})`;
   }
 
-  // Returns true if this. the direction to cell and cell. the direction to this are both true
   hasGateTo(cell) {
-    if (this.x === cell.x) {
-      if (this.y === cell.y - 1) {
-        return this.down && cell.up;
-      }
-      if (this.y === cell.y + 1) {
-        return this.up && cell.down;
-      }
-    } else if (this.y === cell.y) {
-      if (this.x === cell.x - 1) {
-        return this.right && cell.left;
-      }
-      if (this.x === cell.x + 1) {
-        return this.left && cell.right;
-      }
-    } else {
-      console.warn(`Cells ${this} and ${cell} are not neighbors`);
-    }
+    let edge = this.edges.find(edge => edge.cell1 === cell || edge.cell2 === cell);
+    if (!edge) return false;
+    return edge.hasGate;
+  }
+
+  hasGateToDirection(direction) {
+    return this.hasGateTo(this.getNeighbor(direction));
   }
 }
