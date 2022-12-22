@@ -1,7 +1,7 @@
 import { Cell } from "./cell.js";
 import { Edge } from "./edge.js";
-import { Maze } from "./maze.js";
 
+// Responsible for coordinate systems and edge generation
 export class SquareGrid {
   constructor() {
     this.cells = {};

@@ -1,6 +1,4 @@
-import { Cell } from "./cell.js";
-import { Edge } from "./edge.js";
-
+// Responsible for MST and maze generation
 export class Maze {
   constructor() {
     this.tree = [];

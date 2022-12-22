@@ -1,3 +1,4 @@
+// Responsible for connecting cells and holding information about the connection
 export class Edge {
   constructor(cell1, cell2) {
     this.hasGate = false;

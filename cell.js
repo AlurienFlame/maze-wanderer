@@ -1,3 +1,4 @@
+// Responsible for holding edges
 export class Cell {
   constructor() {
     this.edges = [];

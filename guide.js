@@ -1,5 +1,4 @@
-import { Cell } from './cell.js';
-
+// Responsible for pathfinding
 export class Guide {
   constructor(grid) {
     this.grid = grid;
