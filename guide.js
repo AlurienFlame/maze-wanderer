@@ -3,7 +3,7 @@ export class Guide {
   constructor(grid) {
     this.grid = grid;
     this.pos = null;
-    this.origins = {};
+    this.origins = new Map();
     this.resetPathfinding();
   }
 
@@ -43,7 +43,7 @@ export class Guide {
   constructPath() {
     // TODO: this should happen incrementally too
     this.path = [];
-    for (let pathCell = this.targetCell; pathCell != this.pos; pathCell = this.origins[pathCell]) {
+    for (let pathCell = this.targetCell; pathCell != this.pos; pathCell = this.origins.get(pathCell)) {
       if (!pathCell) {
         // This is normal if the target is unreachable
         console.log("Failed to construct path, giving up.");
@@ -101,7 +101,7 @@ export class Guide {
       let distanceToTarget = this.grid.getDistanceBetween(neighbor, this.targetCell);
       neighbor.detourCost = this.distanceFromStart + distanceToTarget;
       this.frontier.push(neighbor);
-      this.origins[neighbor] = cell;
+      this.origins.set(neighbor, cell);
       if (neighbor === cell) {
         console.warn(`Loop detected in pathfinding: ${cell} has itself as neighbor`);
         return true;

@@ -2,7 +2,6 @@
 export class Cell {
   constructor() {
     this.edges = [];
-    this.id = Math.floor(Math.random() * 1000000);
   }
 
   getNeighborsByEdges() {
@@ -27,7 +26,7 @@ export class Cell {
   }
 
   toString() {
-    return `Cell(${this.edges.length} edges, ${this.edges.filter(edge => edge.hasGate).length} gates, ${this.id}))`;
+    return `Cell(${this.edges.length} edges, ${this.edges.filter(edge => edge.hasGate).length} gates)`;
   }
 
   hasGateTo(cell) {
