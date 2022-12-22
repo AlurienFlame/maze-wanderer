@@ -16,36 +16,31 @@ export class Maze {
       }
     }
 
-    // Pick an edge based on weight
-    let smallestEdge = edgesOnFrontier[0];
-    for (let edge of edgesOnFrontier) {
-      if (edge.weight < smallestEdge.weight) {
-        smallestEdge = edge;
-      }
-    }
+    // Pick an edge at random from the frontier
+    let nextEdge = edgesOnFrontier[Math.floor(Math.random() * edgesOnFrontier.length)];
 
     // Make sure the algorithm is working correctly
-    if (!smallestEdge) {
+    if (!nextEdge) {
       console.warn("Could not find edge to add to tree");
       return;
     }
-    if (!smallestEdge.connects(nodesInTree, nodesNotInTree)) {
+    if (!nextEdge.connects(nodesInTree, nodesNotInTree)) {
       console.warn("Edge to add to tree does not connect to tree");
-      if (nodesInTree.includes(smallestEdge.cell1) && nodesInTree.includes(smallestEdge.cell2)) {
+      if (nodesInTree.includes(nextEdge.cell1) && nodesInTree.includes(nextEdge.cell2)) {
         console.warn("Both cells in edge are already in tree");
-      } else if (nodesNotInTree.includes(smallestEdge.cell1) && nodesNotInTree.includes(smallestEdge.cell2)) {
+      } else if (nodesNotInTree.includes(nextEdge.cell1) && nodesNotInTree.includes(nextEdge.cell2)) {
         console.warn("Neither cell in edge is in tree");
       }
       return;
     }
 
     // Move the newly added node into the tree
-    let nodeToAdd = nodesNotInTree.includes(smallestEdge.cell1) ? smallestEdge.cell1 : smallestEdge.cell2;
+    let nodeToAdd = nodesNotInTree.includes(nextEdge.cell1) ? nextEdge.cell1 : nextEdge.cell2;
     nodesNotInTree.splice(nodesNotInTree.indexOf(nodeToAdd), 1);
     nodesInTree.push(nodeToAdd);
     this.tree.push(nodeToAdd);
 
-    return smallestEdge;
+    return nextEdge;
   }
 
   // Apply Prim's algorithm to generate a minimum spanning tree

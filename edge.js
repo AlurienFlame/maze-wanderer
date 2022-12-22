@@ -4,7 +4,6 @@ export class Edge {
     this.hasGate = false;
     this.cell1 = cell1;
     this.cell2 = cell2;
-    this.weight = Math.random();
   }
 
   spawnGate() {
